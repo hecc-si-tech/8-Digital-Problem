@@ -1,0 +1,142 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+
+struct Matrix
+{
+    int xy[3][3];
+    int flag;
+};
+struct Matrix mat[102], end;
+int count = 1;
+//所有函数的函数声明
+int checkZeroXY(int num);
+void showMatrix(int num);
+long long symbol(int num);
+int checkMatrix();
+void moveMatrix(int num);
+
+//找出0的位置
+int checkZeroXY(int num)
+{
+    int i;
+    for (i = 0; i < 9; i++)
+        if (mat[num].xy[i / 3][i % 3] == 0) return i;
+}
+//输出移动后的矩阵
+void showMatrix(int num)
+{
+    int i, j;
+    for (i = 0; i < 3; i++)
+    {
+        for (j = 0; j < 3; j++)
+            printf("%d ", mat[num].xy[i][j]);
+        printf("\n");
+    }
+    printf("\n");
+}
+
+//求判断两个矩阵是否相等的标记
+long long symbol(int num)
+{
+    long long  sum;
+    sum = mat[num].xy[0][0] * 100000000 + mat[num].xy[0][1] * 10000000 + mat[num].xy[0][2] * 1000000 + mat[num].xy[1][0] * 100000 + mat[num].xy[1][1] * 10000 + mat[num].xy[1][2] * 1000 + mat[num].xy[2][0] * 100 + mat[num].xy[2][1] * 10 + mat[num].xy[2][2];
+    return sum;
+}
+//广度优先搜索矩阵
+int checkMatrix()
+{
+    int i = 0;
+    while (1)
+    {
+        showMatrix(i);
+        printf("\n");
+        if (i == 100)
+        {
+            printf("该矩阵可能没有解\n");
+            return 0;
+        }
+        if (symbol(i) == symbol(101))
+        {
+            printf("经过%d次变换找到了目标矩阵\n", i);
+            showMatrix(i);
+            return i;
+        }
+        moveMatrix(i);
+        i++;
+    }
+}
+//移动矩阵
+void moveMatrix(int num)
+{
+
+    int temp;
+    int loc;
+    int up = 1, down = 1, left = 1, right = 1;
+    loc = checkZeroXY(num);
+    int stand = mat[num].flag;
+    //dir的0 1 2 3分别代表左 上 右 下
+    //往上移动
+    if (loc / 3 != 0 && stand != 1)
+    {
+        mat[count] = mat[num];
+        temp = mat[count].xy[loc / 3][loc % 3];
+        mat[count].xy[loc / 3][loc % 3] = mat[count].xy[loc / 3 - 1][loc % 3];
+        mat[count].xy[loc / 3 - 1][loc % 3] = temp;
+        mat[count].flag = 3;
+        count++;
+    };
+    //往下移动
+    if (loc / 3 != 2 && stand != 3)
+    {
+        mat[count] = mat[num];
+        temp = mat[count].xy[loc / 3][loc % 3];
+        mat[count].xy[loc / 3][loc % 3] = mat[count].xy[loc / 3 + 1][loc % 3];
+        mat[count].xy[loc / 3 + 1][loc % 3] = temp;
+        mat[count].flag = 1;
+        count++;
+    }
+    //往左移动
+    if (loc % 3 != 0 && stand != 0)
+    {
+        mat[count] = mat[num];
+        temp = mat[count].xy[loc / 3][loc % 3];
+        mat[count].xy[loc / 3][loc % 3] = mat[count].xy[loc / 3][loc % 3 - 1];
+        mat[count].xy[loc / 3][loc % 3 - 1] = temp;
+        mat[count].flag = 2;
+        count++;
+    }
+    //往右 移动
+    if (loc % 3 != 2 && stand != 2)
+    {
+        mat[count] = mat[num];
+        temp = mat[count].xy[loc / 3][loc % 3];
+        mat[count].xy[loc / 3][loc % 3] = mat[count].xy[loc / 3][loc % 3 + 1];
+        mat[count].xy[loc / 3][loc % 3 + 1] = temp;
+        mat[count].flag = 0;
+        count++;
+    }
+
+}
+
+
+int main()
+{
+    int i, j;
+    printf("输入起始矩阵:\n");
+    for (i = 0; i < 3; i++)
+        for (j = 0; j < 3; j++)
+            scanf("%d", &mat[0].xy[i][j]);
+    mat[0].flag = -1;
+    printf("输入目标矩阵:\n");
+    for (i = 0; i < 3; i++)
+        for (j = 0; j < 3; j++)
+            scanf("%d", &mat[101].xy[i][j]);
+    mat[101].flag = -1;
+
+    checkMatrix();
+
+    getchar();
+    getchar();
+    return 0;
+}
+
