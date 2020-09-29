@@ -1,0 +1,206 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<stdlib.h>
+
+//定义起始数码矩阵和目标数码矩阵并初始化
+int origin[3][3];
+int end[3][3] = { 1,2,3,4,5,6,7,8,0 };
+//定义0的行和列
+int row, col;
+//定义简化计算标志,若上一次往上移动，则下一次移动就不会往下移动,该标志记录下一次不能移动的方向
+int flag = 4;
+//定义交换了多少次得到目标数码矩阵
+int moveTimes = 0;
+int rightNum2 = -1;
+int DGCS = 0;
+
+//展示每次更换位置后的数码矩阵
+void showMatrix(int origin[3][3])
+{
+	printf("\n");
+	for (int i = 0;i < 3;i++)
+	{
+		for (int j = 0;j < 3;j++)
+			printf("%d ", origin[i][j]);
+		printf("\n");
+	}	
+	printf("\n");
+}
+//检查输入的起始数码矩阵是否与目标数码矩阵相同
+int checkSimilarity(int origin[3][3], int end[3][3])
+{
+	int count = 0;
+	for (int i = 0;i < 3;i++)
+		for (int j = 0;j < 3;j++)
+			if (origin[i][j] == end[i][j])
+				count++;
+	return count;
+}
+//交换起始数码矩阵中的值
+void exchange(int origin[3][3], int row_one, int column_one, int row_two, int column_two)
+{
+	int temp;
+	temp = origin[row_two][column_two];
+	origin[row_two][column_two] = origin[row_one][column_one];
+	origin[row_one][column_one] = temp;
+}
+int moveMatrix(int origin[3][3],int end[3][3],int row,int col,int flag)
+{
+	int rightNum = checkSimilarity(origin, end);
+	DGCS++;
+	printf("0的位置:%d %d", row, col);
+	if (rightNum2 == 9)
+	{
+		printf("\n\nGAME SUCCES!!!!");
+		return 1;
+	}
+	printf("当前数码矩阵的正确数:%d,调用了moveMatrix函数 %d 次  ", rightNum,DGCS); 
+	//0往上移动的情况
+	if (row > 0 && flag != 0 && rightNum2 != 9)
+	{
+		exchange(origin, row, col, row - 1, col);
+		rightNum2 = checkSimilarity(origin, end);
+		//如果交换后正确数码个数比以前小，则又交换回来
+		if (rightNum > rightNum2)
+		{
+			exchange(origin, row, col, row - 1, col);
+		}
+		//如果交换后正确数码个数比以前大，则继续进行下一次交换
+		else
+		{
+			printf("向上交换后的数码矩阵的正确数:%d，当前0的坐标：为%d行%d列  ", rightNum2,row-1 ,col);
+			showMatrix(origin);
+			moveTimes++;
+			for (int i = 0;i < 3;i++)
+				for (int j = 0;j < 3;j++)
+				{
+					if (origin[i][j] == 0)
+					{
+						row = i;
+						col = j;
+					}
+				}
+			moveMatrix(origin, end, row, col, 2);
+		}
+	}
+	//0往左移动的情况
+	if (col > 0 && flag != 1 && rightNum2 != 9)
+	{
+		exchange(origin, row, col, row , col - 1);
+		rightNum2 = checkSimilarity(origin, end);
+		//如果交换后正确数码个数比以前小，则又交换回来
+		if (rightNum > rightNum2)
+		{
+			exchange(origin, row, col, row, col - 1);
+		}
+		//如果交换后正确数码个数比以前大，则继续进行下一次交换
+		else 
+		{
+			printf("向左交换后的数码矩阵的正确数:%d，当前0的坐标：为%d行%d列  ", rightNum2,row,col-1);
+			showMatrix(origin);
+			moveTimes++;
+			for (int i = 0;i < 3;i++)
+				for (int j = 0;j < 3;j++)
+				{
+					if (origin[i][j] == 0)
+					{
+						row = i;
+						col = j;
+					}
+				}
+			moveMatrix(origin, end, row, col, 3);
+		}
+	}
+	//0往下移动的情况
+	if (row < 2 && flag != 2 && rightNum2 != 9)
+	{
+		exchange(origin, row, col, row + 1, col);
+		rightNum2 = checkSimilarity(origin, end);
+		//如果交换后正确数码个数比以前小，则又交换回来
+		if (rightNum > rightNum2)
+		{
+			exchange(origin, row, col, row + 1, col);
+		}
+		//如果交换后正确数码个数比以前大，则继续进行下一次交换
+		else
+		{
+			printf("向下交换后的数码矩阵的正确数:%d，当前0的坐标：为%d行%d列  ", rightNum2,row+1,col);
+			showMatrix(origin);
+			moveTimes++;
+			for (int i = 0;i < 3;i++)
+				for (int j = 0;j < 3;j++)
+				{
+					if (origin[i][j] == 0)
+					{
+						row = i;
+						col = j;
+					}
+				}
+			moveMatrix(origin, end, row , col, 0);
+		}
+	}
+	//0往右移动的情况
+	if (col < 2 && flag != 3 && rightNum2 !=9 )
+	{
+		exchange(origin, row, col, row , col + 1);
+		rightNum2 = checkSimilarity(origin, end);
+		//如果交换后正确数码个数比以前小，则又交换回来
+		if (rightNum > rightNum2)
+		{
+			exchange(origin, row, col, row , col + 1);
+		}
+		//如果交换后正确数码个数比以前大，则继续进行下一次交换
+		else
+		{
+			printf("向右交换后的数码矩阵的正确数:%d，当前0的坐标：为%d行%d列  ", rightNum2,row,col+1);
+			showMatrix(origin);
+			moveTimes++;
+			for (int i = 0;i < 3;i++)
+				for (int j = 0;j < 3;j++)
+				{
+					if (origin[i][j] == 0)
+					{
+						row = i;
+						col = j;
+					}
+				}
+			moveMatrix(origin, end, row, col, 1);
+		}
+	}
+	if (rightNum2 == 9)
+		return 1;
+	else
+		return 0;
+}
+int main()
+{
+	int right;
+	printf("起始数码矩阵:\n");
+	for (int i = 0;i < 3;i++)
+		for (int j = 0;j < 3;j++)
+		{
+			scanf("%d", &origin[i][j]);
+			if (origin[i][j] == 0)
+			{
+				row = i;
+				col = j;
+			}
+		}
+	printf("移动到目标数码矩阵的移动过程:\n");
+	right = moveMatrix(origin, end, row, col, flag);
+	if (right == 1)
+		printf("\n经过%d步移动，得到了目标数码矩阵", moveTimes);
+	else
+	{
+		printf("\n移动的次数为%d,该数码矩阵可能得不到目标数码矩阵", moveTimes);
+	}
+		
+
+
+
+	
+	getchar();
+	getchar();
+	return 0;
+}
+
